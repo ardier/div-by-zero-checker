@@ -23,19 +23,30 @@ public class DivByZeroAnnotatedTypeFactory extends BaseAnnotatedTypeFactory {
     /**
      * Compute the default annotation for the given literal.
      *
-     * @param literal   the literal in the syntax tree to examine
+     * @param literal the literal in the syntax tree to examine
      * @return the most specific possible point in the lattice for the given literal
      */
     private Class<? extends Annotation> defaultAnnotation(LiteralTree literal) {
         switch (literal.getKind()) {
-        case INT_LITERAL:
-            int intValue = (Integer)literal.getValue();
-            // TODO
-            break;
-        case LONG_LITERAL:
-            long longValue = (Long)literal.getValue();
-            // TODO
-            break;
+            case INT_LITERAL:
+                int intValue = (Integer) literal.getValue();
+                if (intValue == 0) {
+                    return Zero.class;
+                } else if (intValue > 0) {
+                    return Positive.class;
+                } else {
+                    return Negative.class;
+                }
+
+            case LONG_LITERAL:
+                long longValue = (Long) literal.getValue();
+                if (longValue == 0) {
+                    return Zero.class;
+                } else if (longValue > 0) {
+                    return Positive.class;
+                } else {
+                    return Negative.class;
+                }
         }
         return Top.class;
     }
@@ -51,8 +62,8 @@ public class DivByZeroAnnotatedTypeFactory extends BaseAnnotatedTypeFactory {
     @Override
     protected TreeAnnotator createTreeAnnotator() {
         return new ListTreeAnnotator(
-            new DivByZeroTreeAnnotator(this),
-            super.createTreeAnnotator());
+                new DivByZeroTreeAnnotator(this),
+                super.createTreeAnnotator());
     }
 
     private class DivByZeroTreeAnnotator extends TreeAnnotator {
